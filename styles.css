@@ -124,3 +124,51 @@ body:after{content:"";position:fixed;inset:0;background:radial-gradient(circle a
 button:disabled{opacity:.56;cursor:not-allowed;filter:saturate(.6)}
 .admin .tab.active{background:linear-gradient(135deg,rgba(255,215,139,.25),rgba(255,93,74,.22));border-color:rgba(255,226,167,.75);box-shadow:0 0 22px rgba(255,180,99,.16);}
 @media(max-width:1200px){.screen-status-badge{display:none;}}
+
+
+/* v8 screen UI: hide state badge; comments appear from top to bottom, then roll upward as new approved views enter */
+.screen-status-badge{display:none !important;}
+.comments{
+  display:flex;
+  flex-direction:column !important;
+  justify-content:flex-start !important;
+  align-items:stretch !important;
+  gap:12px !important;
+  overflow:hidden !important;
+}
+.comment{
+  animation:commentEnterDown .42s ease both !important;
+}
+@keyframes commentEnterDown{
+  from{transform:translateY(-18px);opacity:0;filter:blur(2px)}
+  to{transform:translateY(0);opacity:1;filter:blur(0)}
+}
+
+/* v9: scrollable screen history + mobile public feed + likes */
+.comments{
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  scroll-behavior:smooth;
+  padding-right:10px !important;
+}
+.comments::-webkit-scrollbar{width:8px}
+.comments::-webkit-scrollbar-thumb{background:rgba(255,238,188,.24);border-radius:999px}
+.comments::-webkit-scrollbar-track{background:rgba(255,255,255,.04);border-radius:999px}
+.comment .meta{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.like-count{font-size:13px;color:var(--gold);font-weight:800;white-space:nowrap;opacity:.95}
+.public-feed{margin-top:28px;border-top:1px solid rgba(255,238,188,.18);padding-top:22px}
+.feed-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.feed-head h3{margin:0;color:#fff7dc;font-size:22px}
+.feed-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.feed-tabs button{border:1px solid rgba(255,238,188,.22);background:rgba(255,255,255,.06);color:#fff4d6;border-radius:999px;padding:8px 12px;font-weight:800;cursor:pointer}
+.feed-tabs button.active{background:linear-gradient(135deg,#ffdf9b,#ff8067);color:#170406;border-color:transparent}
+.public-opinions{display:flex;flex-direction:column;gap:12px;max-height:42vh;overflow-y:auto;padding-right:4px}
+.public-opinions::-webkit-scrollbar{width:6px}.public-opinions::-webkit-scrollbar-thumb{background:rgba(255,238,188,.22);border-radius:999px}.public-opinions::-webkit-scrollbar-track{background:rgba(255,255,255,.04)}
+.public-opinion{border:1px solid rgba(255,238,188,.15);background:rgba(255,255,255,.055);border-radius:18px;padding:14px 14px 12px;box-shadow:inset 0 0 22px rgba(255,238,188,.035)}
+.public-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;color:rgba(255,247,220,.72);font-size:13px;font-weight:800;margin-bottom:7px}
+.public-text{color:#fff7dc;font-size:16px;line-height:1.45;word-break:break-word;margin-bottom:10px}
+.like-btn{border:1px solid rgba(255,238,188,.2);background:rgba(255,255,255,.05);color:#ffe5aa;border-radius:999px;padding:7px 11px;font-weight:800;cursor:pointer}
+.like-btn.liked{background:rgba(255,128,103,.16);border-color:rgba(255,128,103,.55);color:#ffdf9b}
+.empty-note{color:rgba(255,247,220,.58);margin:8px 0 0;font-size:14px}
+.admin-like{color:#ffdf9b;font-weight:900}
+@media(max-width:800px){.feed-head{align-items:flex-start;flex-direction:column}.public-opinions{max-height:48vh}.feed-head h3{font-size:20px}}

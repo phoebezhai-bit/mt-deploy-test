@@ -48,7 +48,8 @@
     const comments = Object.entries(q.comments || {}).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
     const pending = comments.filter(([id,c])=>c.status === 'pending');
     const approved = comments.filter(([id,c])=>c.status === 'approved').slice(0,20);
-    const row = ([id,c], isPending)=>`<div class="pending"><b>${esc(c.emoji||'✨')} ${esc(c.nickname||'匿名')}</b> · ${esc(c.side==='A'?(q.sideA||'A'):(q.sideB||'B'))}<div style="margin-top:6px;color:#fff4d6">${esc(c.text)}</div><div class="actions">${isPending?`<button class="secondary good" data-approve="${id}">通过上墙</button><button class="secondary danger" data-reject="${id}">删除</button>`:`<button class="secondary" data-hide="${id}">下墙</button>`}</div></div>`;
+    const likeCount = c => c && c.likes ? Object.keys(c.likes).filter(k=>c.likes[k]).length : 0;
+    const row = ([id,c], isPending)=>`<div class="pending"><b>${esc(c.emoji||'✨')} ${esc(c.nickname||'匿名')}</b> · ${esc(c.side==='A'?(q.sideA||'A'):(q.sideB||'B'))} · <span class="admin-like">♥ ${likeCount(c)}</span><div style="margin-top:6px;color:#fff4d6">${esc(c.text)}</div><div class="actions">${isPending?`<button class="secondary good" data-approve="${id}">通过上墙</button><button class="secondary danger" data-reject="${id}">删除</button>`:`<button class="secondary" data-hide="${id}">下墙</button>`}</div></div>`;
     document.getElementById('pendingList').innerHTML = pending.length ? pending.map(x=>row(x,true)).join('') : '<p style="color:rgba(255,247,220,.65)">暂无待审核观点。</p>';
     document.getElementById('approvedList').innerHTML = approved.length ? approved.map(x=>row(x,false)).join('') : '<p style="color:rgba(255,247,220,.65)">暂无已上墙观点。</p>';
     $$('[data-approve]').forEach(b=>b.onclick=()=>root.child(`questions/${idx}/comments/${b.dataset.approve}/status`).set('approved').catch(e=>alert('通过失败：'+e.message)));
