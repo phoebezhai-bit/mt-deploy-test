@@ -11,7 +11,7 @@
   }
   function likesCount(c){ return c && c.likes ? Object.keys(c.likes).filter(k=>c.likes[k]).length : 0; }
   function avatarHtml(p){ return `<div class="avatar" title="${esc(p.nickname||'Guest')}">${esc(p.emoji||'✨')}<small>${esc(p.nickname||'Guest')}</small></div>`; }
-  function commentHtml(c){ return `<div class="comment" data-comment-id="${esc(c.id||'')}"><div class="meta"><span><span class="mini">${esc(c.emoji||'✨')}</span><span>${esc(c.nickname||'匿名')}</span></span><span class="like-count">♥ ${likesCount(c)}</span></div><div class="text">${esc(c.text||'')}</div></div>`; }
+  function commentHtml(c){ return `<div class="comment" data-comment-id="${esc(c.id||'')}"><div class="meta"><span><span class="mini">${esc(c.emoji||'✨')}</span><span>${esc(c.nickname||'匿名')}</span></div><div class="text">${esc(c.text||'')}</div><div class="like-count">♥ ${likesCount(c)}</div></div>`; }
   function maybeScroll(container, side, commentIds){
     if(!container) return;
     const lastId=commentIds[commentIds.length-1]||'';

@@ -1,4 +1,4 @@
-# MT Debate Live Demo UI v9
+# MT Debate Live Demo UI v10
 
 本版本更新：
 - 大屏端：观点区域支持鼠标滚动回看历史观点；新观点通过审核后仍会自动滚动到最新位置。
@@ -10,7 +10,7 @@
 ## 部署
 将本文件夹内所有内容上传到 GitHub 仓库根目录，Commit 后等待 Vercel 自动部署。
 
-## Firebase Realtime Database Rules（v9 必须更新）
+## Firebase Realtime Database Rules（v10 必须更新）
 
 进入 Firebase → Realtime Database → Rules，把规则替换为下面这版。
 其中管理员 UID 已按当前项目填入：`qohU57hS1YPjrRAC6qcUYGVeSS02`。
@@ -63,7 +63,7 @@
             "comments": {
               "$commentId": {
                 ".read": true,
-                ".write": "(!data.exists() && newData.child('status').val() === 'pending') || (auth != null && auth.uid === 'qohU57hS1YPjrRAC6qcUYGVeSS02')",
+                ".write": "(!data.exists() && newData.child('status').val() === 'pending') || (auth != null && auth.uid === 'qohU57hS1YPjrRAC6qcUYGVeSS02') || (data.exists() && newData.child('text').val() === data.child('text').val() && newData.child('side').val() === data.child('side').val() && newData.child('nickname').val() === data.child('nickname').val() && newData.child('emoji').val() === data.child('emoji').val() && newData.child('uid').val() === data.child('uid').val() && newData.child('status').val() === data.child('status').val() && newData.child('createdAt').val() === data.child('createdAt').val())",
                 "likes": {
                   "$uid": {
                     ".read": true,
@@ -81,3 +81,8 @@
 ```
 
 发布 Rules 后，重新刷新大屏端、观众端、后台端测试。
+
+
+## v10 修复
+- 修复手机端点赞 Permission Denied：Rules 允许观众只更新 likes，不允许修改观点正文/持方/昵称/状态。
+- 优化大屏端点赞统计：爱心和数字放在观点卡片右下角，字号放大，并增加圆角矩形衬底，避免和正文重叠。

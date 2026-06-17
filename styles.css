@@ -172,3 +172,35 @@ button:disabled{opacity:.56;cursor:not-allowed;filter:saturate(.6)}
 .empty-note{color:rgba(255,247,220,.58);margin:8px 0 0;font-size:14px}
 .admin-like{color:#ffdf9b;font-weight:900}
 @media(max-width:800px){.feed-head{align-items:flex-start;flex-direction:column}.public-opinions{max-height:48vh}.feed-head h3{font-size:20px}}
+
+/* v10: 大屏点赞统计样式优化 */
+.comment{
+  position:relative;
+  padding-bottom:46px !important;
+}
+.comment .text{
+  padding-right:0 !important;
+  margin-bottom:0 !important;
+}
+.comment .like-count{
+  position:absolute;
+  right:18px;
+  bottom:14px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:58px;
+  height:32px;
+  padding:0 14px;
+  border-radius:999px;
+  border:1px solid rgba(255, 238, 188, .22);
+  background:rgba(255, 255, 255, .06);
+  box-shadow:inset 0 0 18px rgba(255, 238, 188, .04);
+  color:#ffdf9b;
+  font-size:18px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.01em;
+  white-space:nowrap;
+  opacity:1;
+}
