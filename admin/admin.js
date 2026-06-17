@@ -1,5 +1,5 @@
 (function(){
- const {cfg, auth, root, esc, listenState, listenQuestion, offQuestion} = MTApp;
+ const {cfg, auth, root, esc, listenState, listenQuestion, offQuestion, $$} = MTApp;
  let state={questionIndex:0,stage:'join'}, q=null, currentIndex=null;
  const toast=t=>document.getElementById('toast').textContent=t;
  const stageLabel={join:'阵营选择',debate:'观点提交',paused:'暂停互动',result:'结果展示'};
