@@ -1,6 +1,8 @@
 (function(){
  const {cfg, auth, root, esc, listenState, listenQuestion, offQuestion, $$} = MTApp;
  let state={questionIndex:0,stage:'join'}, q=null, currentIndex=null;
+ let isEditingQuestion = false;
+ const textFieldIds = ['qTitle','qA','qB'];
  const toast=t=>{const el=document.getElementById('toast'); if(el) el.textContent=t;};
  const stageLabel={join:'阵营选择',debate:'观点提交',paused:'暂停互动',result:'结果展示'};
  async function initData(){ const questions={}; cfg.defaults.questions.forEach((x,i)=>{questions[i]={title:x.title, sideA:x.sideA, sideB:x.sideB}}); await root.update({meta:{title:cfg.defaults.title,subtitle:cfg.defaults.subtitle,updatedAt:firebase.database.ServerValue.TIMESTAMP}, state:{questionIndex:0,stage:'join',updatedAt:firebase.database.ServerValue.TIMESTAMP}, questions}); toast('活动数据已初始化'); }
@@ -8,8 +10,15 @@
    if(!document.getElementById('adminBox')) return;
    document.getElementById('stageNow').textContent=stageLabel[state.stage]||state.stage; $$('#stageTabs .tab').forEach(t=>t.classList.toggle('active',t.dataset.stage===state.stage));
    const sel=document.getElementById('questionSelect'); if(sel.options.length!==cfg.defaults.questions.length){ sel.innerHTML=cfg.defaults.questions.map((x,i)=>`<option value="${i}">第${i+1}题</option>`).join(''); } sel.value=String(state.questionIndex||0);
-   if(!q){document.getElementById('qTitle').value='请先初始化活动数据';return;}
-   document.getElementById('qTitle').value=q.title||'-'; document.getElementById('qA').value=q.sideA||'-'; document.getElementById('qB').value=q.sideB||'-';
+   if(!q){
+     if(!isEditingQuestion) document.getElementById('qTitle').value='请先初始化活动数据';
+     return;
+   }
+   if(!isEditingQuestion){
+     document.getElementById('qTitle').value=q.title||'';
+     document.getElementById('qA').value=q.sideA||'';
+     document.getElementById('qB').value=q.sideB||'';
+   }
    const ps=Object.values(q.participants||{}); document.getElementById('countNow').textContent=`${ps.length}人加入`;
    const comments=Object.entries(q.comments||{}).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)); const pending=comments.filter(([id,c])=>c.status==='pending'); const approved=comments.filter(([id,c])=>c.status==='approved').slice(0,20);
    const row=([id,c],isPending)=>`<div class="pending"><b>${esc(c.emoji||'✨')} ${esc(c.nickname||'匿名')}</b> · ${esc(c.side==='A'?(q.sideA||'A'):(q.sideB||'B'))}<div style="margin-top:6px;color:#fff4d6">${esc(c.text)}</div><div class="actions">${isPending?`<button class="secondary good" data-approve="${id}">通过上墙</button><button class="secondary danger" data-reject="${id}">删除</button>`:`<button class="secondary" data-hide="${id}">下墙</button>`}</div></div>`;
@@ -21,8 +30,22 @@
  }
  document.getElementById('loginBtn').onclick=async()=>{ try{ await auth.signInWithEmailAndPassword(document.getElementById('email').value.trim(),document.getElementById('password').value); }catch(e){ alert('登录失败：'+e.message); } };
  document.getElementById('logoutBtn').onclick=()=>auth.signOut();
+ 
+ textFieldIds.forEach(id=>{ const el=document.getElementById(id); if(el){ el.addEventListener('focus',()=>{isEditingQuestion=true;}); el.addEventListener('input',()=>{isEditingQuestion=true;}); }});
+ document.getElementById('saveQuestionBtn').onclick=async()=>{
+   try{
+     const title=document.getElementById('qTitle').value.trim();
+     const sideA=document.getElementById('qA').value.trim();
+     const sideB=document.getElementById('qB').value.trim();
+     if(!title || !sideA || !sideB){ toast('请完整填写辩题、A持方名称、B持方名称'); return; }
+     await root.child(`questions/${state.questionIndex}`).update({title,sideA,sideB,updatedAt:firebase.database.ServerValue.TIMESTAMP});
+     isEditingQuestion=false;
+     toast('题目文字已保存，大屏端和观众端会实时更新');
+   }catch(e){ alert('保存失败：'+e.message); }
+ };
+
  document.getElementById('initBtn').onclick=()=>initData().catch(e=>alert('初始化失败：请确认 Database Rules 已填入管理员 UID。\n'+e.message));
- document.getElementById('questionSelect').onchange=e=>root.child('state').update({questionIndex:Number(e.target.value),stage:'join',updatedAt:firebase.database.ServerValue.TIMESTAMP});
+ document.getElementById('questionSelect').onchange=e=>{ isEditingQuestion=false; root.child('state').update({questionIndex:Number(e.target.value),stage:'join',updatedAt:firebase.database.ServerValue.TIMESTAMP}); } ;
  $$('#stageTabs .tab').forEach(b=>b.onclick=()=>root.child('state').update({stage:b.dataset.stage,updatedAt:firebase.database.ServerValue.TIMESTAMP}));
  document.getElementById('resetCurrentBtn').onclick=async()=>{ if(!confirm('确定清空当前题的观众阵营和观点吗？')) return; await root.child(`questions/${state.questionIndex}`).update({participants:null,comments:null}); toast('当前题数据已清空'); };
  auth.onAuthStateChanged(u=>{ document.getElementById('loginBox').style.display=u?'none':'block'; document.getElementById('adminBox').style.display=u?'block':'none'; document.getElementById('adminEmail').textContent=u?u.email:''; if(u) render(); });
