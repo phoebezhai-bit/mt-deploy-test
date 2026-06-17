@@ -1,23 +1,33 @@
 (function(){
  const {root, esc, getMobileUrl, listenState, listenQuestion, offQuestion} = MTApp;
  let currentIndex = null;
- const stageLabel = {join:'阵营选择中', debate:'观点提交中', paused:'暂停互动', result:'结果展示'};
- function makeQR(){ const el=document.getElementById('qr'); const url=getMobileUrl(); el.src=''; const box=document.createElement('div'); new QRCode(box,{text:url,width:320,height:320,correctLevel:QRCode.CorrectLevel.M}); setTimeout(()=>{ const img=box.querySelector('img'); const canvas=box.querySelector('canvas'); if(img) el.src=img.src; else if(canvas) el.src=canvas.toDataURL('image/png'); },50); }
+ const stageLabel = {join:'阵营选择中', debate:'观点贡献中', paused:'互动暂停中', result:'结果展示中'};
+ function makeQR(){ const el=document.getElementById('qr'); const url=getMobileUrl(); const box=document.createElement('div'); new QRCode(box,{text:url,width:360,height:360,correctLevel:QRCode.CorrectLevel.M}); setTimeout(()=>{ const img=box.querySelector('img'); const canvas=box.querySelector('canvas'); if(img) el.src=img.src; else if(canvas) el.src=canvas.toDataURL('image/png'); },80); }
+ function avatarHtml(p){ return `<div class="avatar" title="${esc(p.nickname||'Guest')}">${esc(p.emoji||'✨')}<small>${esc(p.nickname||'Guest')}</small></div>`; }
+ function commentHtml(c){ return `<div class="comment"><div class="meta"><span class="mini">${esc(c.emoji||'✨')}</span><span>${esc(c.nickname||'匿名')}</span></div><div class="text">${esc(c.text||'')}</div></div>`; }
  function render(q, state){
    if(!q){ document.getElementById('qTitle').textContent='请在后台初始化活动数据'; return; }
+   const metaTitle = (window.MT_DEBATE_CONFIG.defaults && window.MT_DEBATE_CONFIG.defaults.title) || '2025 MT Graduation';
+   const metaSub = (window.MT_DEBATE_CONFIG.defaults && window.MT_DEBATE_CONFIG.defaults.subtitle) || '蓄光显影，自在亮相';
+   document.getElementById('eventName').textContent = metaTitle.replace(' Debate','');
+   document.getElementById('slogan').textContent = metaSub;
    const ps=Object.values(q.participants||{});
    const a=ps.filter(p=>p.side==='A'), b=ps.filter(p=>p.side==='B'), total=a.length+b.length;
+   const pa= total? Math.round(a.length/total*100) : 50; const pb= total? 100-pa : 50;
    document.getElementById('qTitle').textContent=q.title||'';
    document.getElementById('sideAName').textContent=q.sideA||'A'; document.getElementById('sideBName').textContent=q.sideB||'B';
-   document.getElementById('stagePill').textContent=stageLabel[state.stage]||state.stage||'等待中'; document.getElementById('totalPill').textContent=`${total} 位观众已加入`;
+   document.getElementById('stagePill').textContent=stageLabel[state.stage]||state.stage||'等待中';
    document.getElementById('countA').textContent=a.length; document.getElementById('countB').textContent=b.length;
-   document.getElementById('pctA').textContent= total? Math.round(a.length/total*100)+'%' : '0%'; document.getElementById('pctB').textContent= total? Math.round(b.length/total*100)+'%' : '0%';
-   document.getElementById('avatarsA').innerHTML=a.slice(-80).map(p=>`<div class="avatar" title="${esc(p.nickname)}">${esc(p.emoji||'✨')}</div>`).join('');
-   document.getElementById('avatarsB').innerHTML=b.slice(-80).map(p=>`<div class="avatar" title="${esc(p.nickname)}">${esc(p.emoji||'✨')}</div>`).join('');
+   document.getElementById('pctA').textContent= total? pa+'%' : '0%'; document.getElementById('pctB').textContent= total? pb+'%' : '0%';
+   document.getElementById('barA').style.width=(total?pa:50)+'%'; document.getElementById('barB').style.width=(total?pb:50)+'%';
+   const showComments = state.stage==='debate' || state.stage==='result';
+   document.getElementById('avatarsA').style.display=showComments?'none':'flex'; document.getElementById('avatarsB').style.display=showComments?'none':'flex';
+   document.getElementById('commentsA').style.display=showComments?'flex':'none'; document.getElementById('commentsB').style.display=showComments?'flex':'none';
+   document.getElementById('avatarsA').innerHTML=a.slice(-80).map(avatarHtml).join('');
+   document.getElementById('avatarsB').innerHTML=b.slice(-80).map(avatarHtml).join('');
    const cs=Object.values(q.comments||{}).filter(c=>c.status==='approved').sort((x,y)=>(x.createdAt||0)-(y.createdAt||0));
-   const ca=cs.filter(c=>c.side==='A').slice(-8), cb=cs.filter(c=>c.side==='B').slice(-8);
-   const cHtml=c=>`<div class="comment"><div class="commentTop"><span>${esc(c.emoji||'✨')}</span><b>${esc(c.nickname||'匿名')}</b></div><div class="commentText">${esc(c.text)}</div></div>`;
-   document.getElementById('commentsA').innerHTML=ca.map(cHtml).join(''); document.getElementById('commentsB').innerHTML=cb.map(cHtml).join('');
+   document.getElementById('commentsA').innerHTML=cs.filter(c=>c.side==='A').slice(-8).map(commentHtml).join('');
+   document.getElementById('commentsB').innerHTML=cs.filter(c=>c.side==='B').slice(-8).map(commentHtml).join('');
  }
  let latestState={questionIndex:0,stage:'join'};
  listenState(st=>{ latestState=st; if(currentIndex!==st.questionIndex){ if(currentIndex!==null) offQuestion(currentIndex); currentIndex=st.questionIndex; listenQuestion(currentIndex,q=>render(q,latestState)); } else root.child('questions/'+currentIndex).once('value').then(s=>render(s.val(),latestState)); });
