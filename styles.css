@@ -24,3 +24,30 @@ body:after{content:"";position:fixed;inset:0;background:radial-gradient(circle a
 /* === Live version overrides: keep original demo UI, wire to Firebase pages === */
 .topnav a{border:0;border-radius:999px;padding:9px 16px;color:#fff3d5;background:rgba(255,255,255,.08);cursor:pointer;font-weight:600;letter-spacing:.04em;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.topnav a.active{background:linear-gradient(135deg,var(--gold),var(--coral));color:#260606}.page-link{pointer-events:auto}.qrbox{overflow:hidden}.qrbox:before{display:none}.qrbox img{position:relative;width:78%;height:78%;object-fit:contain;background:#fff;border-radius:10px;padding:4px;z-index:1}.qrbox .qr-label{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);font-size:.48vw;line-height:1;color:#250506;background:#fff;padding:2px 5px;border-radius:999px;z-index:2;letter-spacing:.04em}.screen-grid .side{position:relative}.avatar small{font-family:var(--font-sans)}.comment .text{word-break:break-word}.phone .avatar{width:54px;height:54px;position:relative;bottom:auto;left:auto;transform:none;animation:none;flex-shrink:0}.me{display:flex;align-items:center;gap:14px;border-radius:24px;background:rgba(255,255,255,.07);padding:14px;border:1px solid rgba(255,238,188,.14);margin:18px 0}.choice.selected,.choice.active{border-color:rgba(255,238,188,.65);box-shadow:0 0 28px rgba(255,184,97,.22);background:rgba(255,185,105,.14)}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(10,3,4,.82);border:1px solid rgba(255,238,188,.24);padding:12px 18px;border-radius:999px;z-index:999;color:#fff3d5;box-shadow:0 20px 60px rgba(0,0,0,.35)}.inline-toast{position:static;transform:none;background:none;border:0;padding:0;border-radius:0;box-shadow:none;color:var(--gold);margin-top:12px}.admin .login-panel{max-width:520px;margin:0 auto}.admin .login-panel .input{margin-bottom:12px}.admin select.input{appearance:auto}.pending .commentAdmin{display:block;border:0;padding:0}.admin .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.admin .secondary{border:1px solid rgba(255,238,188,.22);background:rgba(255,255,255,.07);color:#fff6df;border-radius:999px;padding:10px 14px;cursor:pointer}.admin .danger{border-color:rgba(255,100,100,.35);color:#ffd1c9}.admin .good{border-color:rgba(255,238,188,.42);background:rgba(255,238,188,.1)}
 @media(max-width:800px){.topnav a{padding:9px 14px}.qrbox .qr-label{font-size:9px}.phone .avatar{width:54px;height:54px;font-size:27px}.toast{max-width:88vw;text-align:center}.inline-toast{max-width:none;text-align:left}}
+
+/* 2026-06 update: hide channel switcher and reposition QR for stage use */
+.topnav{display:none !important;}
+.stage-chip{display:none !important;}
+.stage{padding-top:4.6vh !important;}
+.qrbox{
+  right:4.2vw !important;
+  top:4.2vh !important;
+  bottom:auto !important;
+  width:12.5vw !important;
+  height:12.5vw !important;
+  min-width:150px !important;
+  min-height:150px !important;
+  max-width:240px !important;
+  max-height:240px !important;
+  border-radius:22px !important;
+  box-shadow:0 0 42px rgba(255,230,173,.34), 0 16px 60px rgba(0,0,0,.32) !important;
+  z-index:20 !important;
+}
+.qrbox img{width:84% !important;height:84% !important;border-radius:12px !important;padding:6px !important;}
+.qrbox .qr-label{bottom:10px !important;font-size:.58vw !important;padding:3px 8px !important;}
+@media(max-width:800px){
+  .topnav{display:none !important;}
+  .stage{padding-top:22px !important;}
+  .qrbox{display:none !important;}
+  .admin{padding-top:32px !important;}
+}
