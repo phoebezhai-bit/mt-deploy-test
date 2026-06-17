@@ -18,3 +18,8 @@ UI update: 已去除所有页面顶部“打开渠道”按钮；大屏端仅保
 ## v3 UI update
 - QR moved into a reserved top-right safe zone.
 - Question title and score bar constrained to a safe width so the QR will not cover text even when the debate question is longer.
+
+
+## v5 更新
+- 修复后台阶段切换按钮点击后无反馈的问题。
+- 阶段切换现在会立即显示当前阶段，并在权限不足时弹出明确报错。

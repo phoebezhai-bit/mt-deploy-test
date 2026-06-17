@@ -45,9 +45,39 @@
  };
 
  document.getElementById('initBtn').onclick=()=>initData().catch(e=>alert('初始化失败：请确认 Database Rules 已填入管理员 UID。\n'+e.message));
- document.getElementById('questionSelect').onchange=e=>{ isEditingQuestion=false; root.child('state').update({questionIndex:Number(e.target.value),stage:'join',updatedAt:firebase.database.ServerValue.TIMESTAMP}); } ;
- $$('#stageTabs .tab').forEach(b=>b.onclick=()=>root.child('state').update({stage:b.dataset.stage,updatedAt:firebase.database.ServerValue.TIMESTAMP}));
- document.getElementById('resetCurrentBtn').onclick=async()=>{ if(!confirm('确定清空当前题的观众阵营和观点吗？')) return; await root.child(`questions/${state.questionIndex}`).update({participants:null,comments:null}); toast('当前题数据已清空'); };
+ async function updateStage(nextStage){
+   try{
+     if(!auth.currentUser){ alert('请先登录后台'); return; }
+     await root.child('state').update({stage:nextStage,updatedAt:firebase.database.ServerValue.TIMESTAMP});
+     state.stage=nextStage;
+     render();
+     toast('已切换到：'+(stageLabel[nextStage]||nextStage));
+   }catch(e){
+     alert('阶段切换失败：'+e.message+'\n请确认 Realtime Database Rules 允许管理员写入 events/mt2026-graduation-debate/state。');
+   }
+ }
+ async function updateQuestionIndex(nextIndex){
+   try{
+     if(!auth.currentUser){ alert('请先登录后台'); return; }
+     isEditingQuestion=false;
+     await root.child('state').update({questionIndex:Number(nextIndex),stage:'join',updatedAt:firebase.database.ServerValue.TIMESTAMP});
+     state.questionIndex=Number(nextIndex);
+     state.stage='join';
+     render();
+     toast('已切换到第 '+(Number(nextIndex)+1)+' 题');
+   }catch(e){
+     alert('题目切换失败：'+e.message+'\n请确认 Realtime Database Rules 允许管理员写入 state。');
+   }
+ }
+ document.getElementById('questionSelect').onchange=e=>updateQuestionIndex(e.target.value);
+ $$('#stageTabs .tab').forEach(b=>{
+   b.type='button';
+   b.addEventListener('click',e=>{
+     e.preventDefault();
+     updateStage(b.dataset.stage);
+   });
+ });
+ document.getElementById('resetCurrentBtn').onclick=async()=>{ if(!confirm('确定清空当前题的观众阵营和观点吗？')) return; try{ await root.child(`questions/${state.questionIndex}`).update({participants:null,comments:null}); toast('当前题数据已清空'); }catch(e){ alert('清空失败：'+e.message); } };
  auth.onAuthStateChanged(u=>{ document.getElementById('loginBox').style.display=u?'none':'block'; document.getElementById('adminBox').style.display=u?'block':'none'; document.getElementById('adminEmail').textContent=u?u.email:''; if(u) render(); });
  listenState(st=>{ state=st; if(currentIndex!==st.questionIndex){ if(currentIndex!==null) offQuestion(currentIndex); currentIndex=st.questionIndex; listenQuestion(currentIndex,qq=>{q=qq;render();}); } else root.child('questions/'+currentIndex).once('value').then(s=>{q=s.val();render();}); render(); });
 })();
