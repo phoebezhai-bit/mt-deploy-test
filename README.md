@@ -1,25 +1,61 @@
-# MT Debate 正式联网版 - Demo UI版本
+# MT Debate Live Demo UI v6
 
-本包保持之前视觉 Demo 的 UI（暖色暗场、玻璃卡片、顶部三端切换、头像墙/观点墙），但保留正式联网功能：Firebase Authentication、Realtime Database、后台审核、大屏二维码。
+本版本修复：
+- 观众端扫码后无法提交阵营的问题：按钮重新绑定，并增加失败弹窗提示。
+- 后台端阶段切换按钮无反应的问题：改为事件代理绑定，写入 `events/<eventId>/state`，并显示成功/失败提示。
+- 大屏端新增“当前状态”提示卡，后台切换阶段后大屏实时显示当前状态。
 
-上传方式：把本文件夹里面的所有内容上传到 GitHub 仓库根目录，Commit changes，等待 Vercel 自动部署 Ready。
+## 部署
+将本文件夹内所有内容上传到 GitHub 仓库根目录，Commit 后等待 Vercel 自动部署。
 
-入口：
-- /screen/ 大屏端
-- /mobile/ 观众端
-- /admin/ 后台端
+## 必须确认 Firebase 设置
+Authentication：
+- Email/Password：Enabled
+- Anonymous：Enabled
 
-Firebase Rules 沿用当前已跑通的版本，不需要因为这次 UI 更新重新配置。
+Realtime Database Rules 需要允许：
+- 管理员写入 `events/mt2026-graduation-debate/state`
+- 匿名观众写入 `events/mt2026-graduation-debate/questions/$questionIndex/participants/$uid`
+- 匿名观众写入 `events/mt2026-graduation-debate/questions/$questionIndex/comments/$commentId`
 
+如果上传 v6 后仍提示 Permission denied，请将 Realtime Database Rules 替换为以下版本，并把 ADMIN_UID 替换为管理员 UID：
 
-UI update: 已去除所有页面顶部“打开渠道”按钮；大屏端仅保留二维码，并移至右上角放大显示。
-
-
-## v3 UI update
-- QR moved into a reserved top-right safe zone.
-- Question title and score bar constrained to a safe width so the QR will not cover text even when the debate question is longer.
-
-
-## v5 更新
-- 修复后台阶段切换按钮点击后无反馈的问题。
-- 阶段切换现在会立即显示当前阶段，并在权限不足时弹出明确报错。
+```json
+{
+  "rules": {
+    "events": {
+      "$eventId": {
+        ".read": true,
+        ".write": "auth != null && auth.uid === 'ADMIN_UID'",
+        "state": {
+          ".read": true,
+          ".write": "auth != null && auth.uid === 'ADMIN_UID'"
+        },
+        "meta": {
+          ".read": true,
+          ".write": "auth != null && auth.uid === 'ADMIN_UID'"
+        },
+        "questions": {
+          ".read": true,
+          "$questionIndex": {
+            ".read": true,
+            ".write": "auth != null && auth.uid === 'ADMIN_UID'",
+            "participants": {
+              "$uid": {
+                ".read": true,
+                ".write": "auth != null && (auth.uid === $uid || auth.uid === 'ADMIN_UID')"
+              }
+            },
+            "comments": {
+              "$commentId": {
+                ".read": true,
+                ".write": "auth != null && ((!data.exists() && newData.child('uid').val() === auth.uid) || auth.uid === 'ADMIN_UID')"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```

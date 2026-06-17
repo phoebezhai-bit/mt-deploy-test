@@ -99,3 +99,28 @@ body:after{content:"";position:fixed;inset:0;background:radial-gradient(circle a
   .debate-title,.debate-title h1{max-width:92vw !important;}
   .scorebar{width:92vw !important;max-width:92vw !important;}
 }
+
+
+/* v6 fixes: prominent screen status + disabled button feedback */
+.screen-status-badge{
+  position:absolute;
+  right:5vw;
+  top:20.5vh;
+  width:10.5vw;
+  min-width:126px;
+  border:1px solid rgba(255,238,188,.24);
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(255,245,214,.14),rgba(50,12,10,.58));
+  box-shadow:0 0 30px rgba(255,210,140,.18), inset 0 0 30px rgba(255,224,168,.05);
+  color:#fff4d6;
+  padding:12px 10px;
+  text-align:center;
+  z-index:7;
+  backdrop-filter:blur(14px);
+}
+.screen-status-badge b{display:block;font-size:.62vw;letter-spacing:.16em;color:rgba(255,238,188,.62);font-weight:500;margin-bottom:5px;}
+.screen-status-badge span{display:block;font-size:.98vw;font-weight:800;color:var(--gold);line-height:1.15;}
+.screen-status-badge em{display:block;font-style:normal;font-size:.62vw;color:rgba(255,247,220,.74);margin-top:5px;}
+button:disabled{opacity:.56;cursor:not-allowed;filter:saturate(.6)}
+.admin .tab.active{background:linear-gradient(135deg,rgba(255,215,139,.25),rgba(255,93,74,.22));border-color:rgba(255,226,167,.75);box-shadow:0 0 22px rgba(255,180,99,.16);}
+@media(max-width:1200px){.screen-status-badge{display:none;}}
