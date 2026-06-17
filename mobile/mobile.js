@@ -42,8 +42,8 @@
     if(busy) return;
     try{
       setBusy(true); toast('正在加入阵营...');
-      await ensureAnon();
-      uid=auth.currentUser.uid;
+      const guest = await ensureAnon();
+      uid = guest.uid;
       const nickname=clamp(document.getElementById('nickname').value, cfg.limits.nicknameMax);
       if(!nickname){ toast('请先输入昵称'); return; }
       if(!profile.side){ toast('请选择A或B持方'); return; }
@@ -55,14 +55,14 @@
       render();
     }catch(e){
       toast('加入失败：'+e.message);
-      alert('加入阵营失败：'+e.message+'\n请确认 Firebase Rules 已允许匿名观众写入 questions/当前题/participants。');
+      alert('加入阵营失败：'+e.message+'\n请确认 Firebase Rules 已更新到 v7 版本，允许观众写入当前题 participants。');
     }finally{ setBusy(false); }
   });
   document.getElementById('sendBtn').addEventListener('click', async ()=>{
     if(busy) return;
     try{
       setBusy(true); toast('正在提交观点...');
-      await ensureAnon(); uid=auth.currentUser.uid;
+      const guest = await ensureAnon(); uid = guest.uid;
       const text=clamp(document.getElementById('comment').value, cfg.limits.commentMax);
       if(!text){ toast('请先输入观点'); return; }
       if(!side){ toast('请先加入阵营'); return; }
@@ -73,12 +73,11 @@
   });
   document.getElementById('resetBtn').addEventListener('click', async ()=>{
     if(busy) return;
-    try{ setBusy(true); await ensureAnon(); uid=auth.currentUser.uid; await root.child(`questions/${Number(state.questionIndex||0)}/participants/${uid}`).remove().catch(()=>{}); side=null; profile.side=null; save(); toast('已重置，请重新选择持方'); render(); }
+    try{ setBusy(true); const guest = await ensureAnon(); uid = guest.uid; await root.child(`questions/${Number(state.questionIndex||0)}/participants/${uid}`).remove().catch(()=>{}); side=null; profile.side=null; save(); toast('已重置，请重新选择持方'); render(); }
     catch(e){ toast('重置失败：'+e.message); }
     finally{ setBusy(false); }
   });
-  auth.onAuthStateChanged(async u=>{ if(u){ uid=u.uid; await loadMyParticipant(); } });
-  ensureAnon().catch(e=>{ toast('匿名登录失败：'+e.message); alert('观众端匿名登录失败：'+e.message+'\n请确认 Firebase Authentication 已开启 Anonymous。'); });
+  (async()=>{ try{ const guest = await ensureAnon(); uid = guest.uid; await loadMyParticipant(); } catch(e){ toast('观众端初始化失败：'+e.message); alert('观众端初始化失败：'+e.message); } })();
   listenState(st=>{
     state=st || {questionIndex:0, stage:'join'};
     const idx=Number(state.questionIndex||0);

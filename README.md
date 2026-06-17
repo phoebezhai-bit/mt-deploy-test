@@ -59,3 +59,68 @@ Realtime Database Rules 需要允许：
   }
 }
 ```
+
+
+## v7 Firebase Realtime Database Rules（重要）
+
+v7 观众端不再使用 Firebase Anonymous Auth，而是使用本地 Guest ID，避免手机端出现 `auth/admin-restricted-operation`。
+请进入 Firebase → Realtime Database → Rules，把规则替换为下面这版，并把 `PASTE_ADMIN_UID_HERE` 替换成你的后台管理员 UID。
+
+```json
+{
+  "rules": {
+    "events": {
+      "$eventId": {
+        ".read": true,
+        "meta": {
+          ".read": true,
+          ".write": "auth != null && auth.uid === 'PASTE_ADMIN_UID_HERE'"
+        },
+        "state": {
+          ".read": true,
+          ".write": "auth != null && auth.uid === 'PASTE_ADMIN_UID_HERE'"
+        },
+        "settings": {
+          ".read": true,
+          ".write": "auth != null && auth.uid === 'PASTE_ADMIN_UID_HERE'"
+        },
+        "questions": {
+          ".read": true,
+          "$questionIndex": {
+            ".read": true,
+            ".write": "auth != null && auth.uid === 'PASTE_ADMIN_UID_HERE'",
+            "title": {
+              ".read": true,
+              ".write": "auth != null && auth.uid === 'PASTE_ADMIN_UID_HERE'"
+            },
+            "sideA": {
+              ".read": true,
+              ".write": "auth != null && auth.uid === 'PASTE_ADMIN_UID_HERE'"
+            },
+            "sideB": {
+              ".read": true,
+              ".write": "auth != null && auth.uid === 'PASTE_ADMIN_UID_HERE'"
+            },
+            "updatedAt": {
+              ".read": true,
+              ".write": "auth != null && auth.uid === 'PASTE_ADMIN_UID_HERE'"
+            },
+            "participants": {
+              "$participantId": {
+                ".read": true,
+                ".write": "newData.child('uid').val() === $participantId || (auth != null && auth.uid === 'PASTE_ADMIN_UID_HERE')"
+              }
+            },
+            "comments": {
+              "$commentId": {
+                ".read": true,
+                ".write": "(!data.exists() && newData.child('status').val() === 'pending') || (auth != null && auth.uid === 'PASTE_ADMIN_UID_HERE')"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
